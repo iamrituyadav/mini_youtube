@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap"
+      rel="stylesheet"
+    />
+
+    <script
+      src="https://kit.fontawesome.com/ed7ed981e3.js"
+      crossorigin="anonymous"
+    ></script>
+    <title>Document</title>
+    <style>
+      body {
+        background-color: hsl(0, 0%, 12%);
+        color: hsl(0, 0%, 100%);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        font-size: 16px;
+      }
+      /* #search_results_div {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-gap: 20px;
+      } */
+
+      #container {
+        display: flex;
+      }
+
+      i {
+        margin: 22px 0 0 20px;
+        font-size: 20px;
+      }
+
+      /* #video {
+        width: 84%;
+        background-color: black;
+        padding: 20px;
+      } */
+      /* #divider {
+        height: 3px;
+        background-color: rgb(43, 42, 42);
+      } */
+      #logo {
+        height: 50px;
+        width: 120px;
+        margin: 0px 0px -15px 20px;
+      }
+      #header {
+        display: flex;
+        justify-content: space-between;
+        background-color: black;
+        height: 60px;
+        width: 99%;
+      }
+
+      input {
+        color: white;
+        width: 400px;
+        background-color: black;
+      }
+
+      button {
+        width: 80px;
+        height: 40px;
+      }
+
+      #two {
+        display: flex;
+        width: 600px;
+        height: 40px;
+      }
+      #three {
+        margin-right: 40px;
+      }
+
+      #videoPlaying {
+        width: 68%;
+      }
+
+      #suggestion {
+        width: 30%;
+      }
+
+      #videoPlaying > div > p {
+        margin-left: 10px;
+      }
+
+      #suggestion > div {
+        display: flex;
+        width: 460px;
+        height: 150px;
+        overflow: hidden;
+        font-size: 16px;
+      }
+
+      #suggestion > div > img {
+        width: 180px;
+        height: 120px;
+        margin-right: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <div id="header">
+        <div>
+          <i class="fas fa-bars"></i>
+          <img
+            id="logo"
+            src="https://media.idownloadblog.com/wp-content/uploads/2020/08/YouTube-logo-black-background.png"
+            alt="logo"
+          />
+        </div>
+
+        <div id="two">
+          <input type="text" name="" id="video" />
+          <a href="index.html"
+            ><button onclick="searchVideo()">Search</button></a
+          >
+          <i
+            class="fas fa-microphone"
+            style="margin-top: 14px; font-size: 22px"
+          ></i>
+        </div>
+
+        <div id="three">
+          <i class="fas fa-video"></i>
+          <i class="fas fa-ellipsis-v"></i>
+          <i class="fas fa-ellipsis-v" style="margin: 0px"></i>
+          <i class="fas fa-ellipsis-v" style="margin: 0px"></i>
+          <i class="fas fa-bell"></i>
+        </div>
+      </div>
+
+      <div id="container">
+        <div id="videoPlaying"></div>
+        <div id="suggestion"></div>
+      </div>
+    </div>
+  </body>
+</html>
+<script>
+  let API = "AIzaSyA33vC0-iGhXcqQRj_qV144Po2wHpvMxJg&maxResults=20";
+
+  async function popularVideos() {
+    // document.querySelector("#search_results_div").textContent = null;
+    try {
+      let res = await fetch(
+        `https://youtube.googleapis.com/youtube/v3/videos?part=id%2Csnippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=20&regionCode=In&key=${API}`
+      );
+
+      let data = await res.json();
+
+      let videos = data.items;
+
+      appendPopularVideos(videos);
+
+      console.log("videos:", videos);
+    } catch (e) {
+      console.log("e: ", e);
+    }
+  }
+
+  const playVideo = (arr) => {
+    var videoDiv = document.getElementById("videoPlaying");
+    // videoDiv.textContent = null;
+    // arr.forEach(({ id: { videoId }, snippet }) => {
+    // console.log("snippet:", snippet);
+    // console.log("videoId:", videoId);
+    let div = document.createElement("div");
+
+    let obj = JSON.parse(localStorage.getItem("detail"));
+    console.log("obj", obj);
+
+    let iframe = document.createElement("iframe");
+    iframe.src = `https://www.youtube.com/embed/${obj.videoId}`;
+    iframe.width = "980px";
+    iframe.height = "560px";
+
+    let p = document.createElement("p");
+    p.innerHTML = obj.title;
+    iframe.setAttribute("allowfullscreen", true);
+
+    // let channel = document.createElement("p");
+    // channel.innerHTML = snippet.channelTitle;
+
+    div.append(iframe, p);
+
+    videoDiv.append(div);
+    // });
+  };
+
+  const appendPopularVideos = (arr) => {
+    var videoDiv = document.getElementById("suggestion");
+    arr.forEach(({ id, snippet, thumbnail }) => {
+      // console.log("snippet:", snippet);
+      let div = document.createElement("div");
+
+      let img = document.createElement("img");
+      img.src = snippet.thumbnails.medium.url;
+
+      // img.addEventListener("click", function () {
+      //   var video = (window.location.href = "playVideo.html");
+      // });
+
+      let child_div = document.createElement("div");
+
+      let p = document.createElement("p");
+      p.innerHTML = snippet.title;
+      // iframe.setAttribute("allowfullscreen", true);
+
+      let channel = document.createElement("p");
+      channel.innerHTML = snippet.channelTitle;
+
+      child_div.append(p, channel);
+      div.append(img, child_div);
+
+      videoDiv.append(div);
+    });
+  };
+
+  popularVideos();
+  playVideo();
+</script>
